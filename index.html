@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Export-to-Excel</title>
+
+	<style type="text/css">
+	#tbData {
+		margin: 12px 6px;
+	}
+	a#export, a#export:visited {
+		color: #F50808;
+		padding: 8px;
+		margin: 6px;
+		border: 1px dotted #333;
+		text-decoration: none;
+		color: #444;
+	}
+	a#export:hover {
+		border: 1px solid #333;
+		color: 555;
+	}
+	</style>
+</head>
+<body>
+
+	<div id="tbData">
+		<table border="1">
+			<thead>
+				<tr>
+					<td>SN</td>
+					<td>Fullname</td>
+					<td>Address</td>
+					<td>Email</td>
+					<td>Username</td>
+					<td>Password</td>
+					<td>Date of Registration</td>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>1</td>
+					<td>Puncoz Nepal</td>
+					<td>Bhaktapur</td>
+					<td>info@puncoz.com</td>
+					<td>puncoz</td>
+					<td>nhd8eGkchye#ks!ksuS</td>
+					<td>2015-07-22 11:13:47</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<a href="#" id="export">Export to Excel</a>
+
+	<script type="text/javascript" src="jquery.min.js"></script>
+	<script type="text/javascript">
+	$(document).ready(function() {
+
+		function exportTableToCSV($table, filename) {
+			var $rows = $table.find('tr:has(td)'),
+
+				// Temporary delimiter characters unlikely to be typed by
+				// keyboard. This is to avoid accidentally splitting the
+				// actual contents
+				tmpColDelim = String.fromCharCode(11),	// vertical tab character
+				tmpRowDelim = String.fromCharCode(0),	// null character
+
+				// actual delimiter characters for CSV format
+				colDelim = '","',
+				rowDelim = '"\r\n"',
+
+				// Grab text from table into CSV formatted string
+				csv = '"' + $rows.map(function(i, row) {
+					var $row = $(row),
+						$cols = $row.find('td');
+
+					return $cols.map(function(j, col) {
+						var $col = $(col),
+							text = $col.text();
+
+						return text.replace('"', '""');	// escape double quotes
+					}).get().join(tmpColDelim);
+				}).get().join(tmpRowDelim)
+					.split(tmpRowDelim).join(rowDelim)
+					.split(tmpColDelim).join(colDelim) + '"',
+
+				// Data URI
+				csvData = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csv);
+
+			$(this)
+				.attr({
+					'download': filename,
+					'href': csvData,
+					'target': '_blank'
+				});
+		}
+
+		// This must be a hyperlink
+		$("#export").on("click", function(event) {
+			// CSV
+			exportTableToCSV.apply(this, [$("#tbData>table"),'Report.csv']);
+		})
+
+	});
+	</script>
+</body>
+</html>
